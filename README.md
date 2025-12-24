@@ -105,7 +105,7 @@ Includes:
 - [ ] Detailed attendance reports
 - [ ] Calendar integration
 - [ ] Profile customization
-- [ ] Multi-language support
+
 
 ## License
 
