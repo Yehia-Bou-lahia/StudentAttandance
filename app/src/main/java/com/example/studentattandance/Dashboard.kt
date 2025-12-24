@@ -66,17 +66,27 @@ import com.example.studentattandance.ui.theme.TextPrimary
  * @param attendancePercentage Overall attendance percentage. If -1, calculates from presentClasses/totalClasses.
  *                             Can be provided directly from API (from API: attendance.percentage)
  * @param encouragementMessage Motivational message (from API: attendance.message or generate based on percentage)
+ * @param attendanceCourseName Course/module name (from API: attendance.courseName or null for success state)
+ * @param attendanceMissedCount Number of missed classes in a specific module (from API: attendance.missedCount)
+ *                              State is automatically calculated:
+ *                              - 0 absences = SUCCESS (green card)
+ *                              - 2-4 absences = WARNING (orange card)
+ *                              - 5+ absences = EXCLUSION (red card)
+ * @param onViewReportClick Callback for "View Report/Details" button (from API: handle navigation)
  * 
  * Example API usage:
  * ```
- * // After API call:
+ * // After API call - state is automatically calculated from missedCount:
  * StudentDashboardScreen(
  *     userName = apiResponse.user.name,
  *     totalClasses = apiResponse.attendance.total,
  *     presentClasses = apiResponse.attendance.present,
  *     absentClasses = apiResponse.attendance.absent,
  *     attendancePercentage = apiResponse.attendance.percentage, // Optional, will calculate if not provided
- *     encouragementMessage = apiResponse.attendance.message // Optional
+ *     encouragementMessage = apiResponse.attendance.message, // Optional
+ *     attendanceCourseName = apiResponse.attendance.courseName,
+ *     attendanceMissedCount = apiResponse.attendance.missedCount, // State calculated automatically
+ *     onViewReportClick = { navController.navigate("report") }
  * )
  * ```
  */
@@ -84,16 +94,26 @@ import com.example.studentattandance.ui.theme.TextPrimary
 fun StudentDashboardScreen(
     userName: String = "yehia",
     totalClasses: Int = 45,
-    presentClasses: Int = 38,
-    absentClasses: Int = 7,
+    presentClasses: Int = 45,
+    absentClasses: Int = 0,
     attendancePercentage: Int = -1, // -1 means calculate from presentClasses/totalClasses
-    encouragementMessage: String = "You are doing well! Keep up the consistency."
+    encouragementMessage: String = "You are doing well! Keep up the consistency.",
+    attendanceCourseName: String? = null,
+    attendanceMissedCount: Int = 0,
+    onViewReportClick: () -> Unit = { /* TODO: Navigate to report */ }
 ) {
     // Calculate attendance percentage if not provided
     val calculatedPercentage = if (attendancePercentage == -1 && totalClasses > 0) {
         ((presentClasses.toFloat() / totalClasses.toFloat()) * 100).toInt()
     } else {
         attendancePercentage.coerceIn(0, 100)
+    }
+    
+    // Automatically calculate attendance state based on missed count
+    val calculatedState = when {
+        attendanceMissedCount >= 5 -> AttendanceState.EXCLUSION
+        attendanceMissedCount >= 2 -> AttendanceState.WARNING
+        else -> AttendanceState.SUCCESS
     }
     
     Surface(
@@ -116,6 +136,15 @@ fun StudentDashboardScreen(
                 total = totalClasses,
                 present = presentClasses,
                 absent = absentClasses
+            )
+            
+            // Show attendance card - state is automatically calculated from missedCount
+            Spacer(modifier = Modifier.height(16.dp))
+            AttendanceCard(
+                state = calculatedState,
+                courseName = attendanceCourseName,
+                missedCount = attendanceMissedCount,
+                onViewReportClick = onViewReportClick
             )
         }
     }
@@ -393,7 +422,10 @@ fun StatCard(
 @Composable
 fun StudentDashboardPreview() {
     StudentAttandanceTheme {
-        StudentDashboardScreen()
+        StudentDashboardScreen(
+            attendanceCourseName = "Math 101",
+            attendanceMissedCount = 2 // Will automatically show WARNING state
+        )
     }
 }
 

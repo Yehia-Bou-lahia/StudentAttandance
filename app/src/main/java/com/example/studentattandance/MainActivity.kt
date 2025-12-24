@@ -57,7 +57,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    StudentDashboardScreen(userName = "yehia")
+                    StudentDashboardScreen(
+                        userName = "yehia",
+                        attendanceMissedCount = 0 // Will automatically show SUCCESS state
+                    )
                 }
             }
         }
