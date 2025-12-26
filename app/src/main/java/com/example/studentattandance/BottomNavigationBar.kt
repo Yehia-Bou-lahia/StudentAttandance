@@ -37,10 +37,11 @@ import com.example.studentattandance.ui.theme.TextSecondary
 @Composable
 fun BottomNavigationBar(
     modifier: Modifier = Modifier,
+    selectedItem: Int = 0,
+    onHomeClick: () -> Unit = {},
     onScanClick: () -> Unit = {},
     onSessionsClick: () -> Unit = {}
 ) {
-    var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf(
         BottomNavItem.Home,
         BottomNavItem.Calendar,
@@ -71,9 +72,10 @@ fun BottomNavigationBar(
                     NavigationBarItem(
                         selected = isSelected,
                         onClick = { 
-                            selectedItem = index
-                            if (item == BottomNavItem.Calendar) {
-                                onSessionsClick()
+                            when (item) {
+                                BottomNavItem.Home -> onHomeClick()
+                                BottomNavItem.Calendar -> onSessionsClick()
+                                else -> { /* Use onNavigate if implemented for others */ }
                             }
                         },
                         icon = {
@@ -145,7 +147,6 @@ fun BottomNavigationBar(
                         )
                     )
                     .clickable { 
-                        selectedItem = 2
                         onScanClick()
                     },
                 contentAlignment = Alignment.Center

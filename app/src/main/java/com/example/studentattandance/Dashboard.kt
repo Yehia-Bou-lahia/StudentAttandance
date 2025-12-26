@@ -160,8 +160,9 @@ fun StudentDashboardScreen(
     Scaffold(
         bottomBar = { 
             BottomNavigationBar(
+                selectedItem = 0,
                 onScanClick = onScanClick,
-                onSessionsClick = onSessionsClick
+                onSessionsClick = onSessionsClick // Pass the callback down
             ) 
         },
         containerColor = DeepNavy

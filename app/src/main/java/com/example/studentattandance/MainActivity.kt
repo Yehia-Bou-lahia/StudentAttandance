@@ -72,6 +72,12 @@ fun MainApp() {
                     onCheckInClick = { session ->
                         // Open QR scanner for check-in
                         showScanner = true
+                    },
+                    onHomeClick = {
+                        currentScreen = AppScreen.DASHBOARD
+                    },
+                    onScanClick = {
+                        showScanner = true
                     }
                 )
             }

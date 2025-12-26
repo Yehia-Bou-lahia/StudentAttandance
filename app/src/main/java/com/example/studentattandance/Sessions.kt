@@ -56,10 +56,12 @@ import com.example.studentattandance.ui.theme.*
 @Composable
 fun SessionsScreen(
     userAvatarUrl: String? = null,
-    sessions: List<Session> = sampleSessions(), //  DUMMY DATA - Replace with API call
+    sessions: List<Session> = sampleSessions(), // ⚠️ DUMMY DATA - Replace with API call
     onNotificationClick: () -> Unit = {},
     onSessionClick: (Session) -> Unit = {},
-    onCheckInClick: (Session) -> Unit = {}
+    onCheckInClick: (Session) -> Unit = {},
+    onHomeClick: () -> Unit = {},
+    onScanClick: () -> Unit = {}
 ) {
     var selectedTab by remember { mutableStateOf(SessionTab.TODAY) }
     
@@ -74,6 +76,14 @@ fun SessionsScreen(
     }
     
     Scaffold(
+        bottomBar = {
+            BottomNavigationBar(
+                selectedItem = 1, // Calendar/Sessions tab index
+                onHomeClick = onHomeClick,
+                onScanClick = onScanClick,
+                onSessionsClick = {} // Already on sessions screen
+            )
+        },
         containerColor = DeepNavy
     ) { paddingValues ->
         Column(
@@ -264,187 +274,199 @@ fun SessionCard(
         colors = CardDefaults.cardColors(containerColor = CardNavy),
         shape = RoundedCornerShape(20.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            // Left side - Session info with status indicator
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                // Status badge
-                when (session.status) {
-                    SessionStatus.LIVE_NOW -> {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(SuccessGreen)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "LIVE NOW",
-                                color = SuccessGreen,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                    SessionStatus.STARTS_SOON -> {
-                        Text(
-                            text = "STARTS IN ${session.startsIn}",
-                            color = AccentBlue,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                    }
-                    SessionStatus.UPCOMING -> {
-                        Text(
-                            text = "UPCOMING",
-                            color = TextSecondary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                    }
-                    SessionStatus.PAST -> {
-                        // No status badge for past sessions
-                    }
-                }
-                
-                // Session title
-                Text(
-                    text = session.title,
-                    color = TextPrimary,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+        Row(modifier = Modifier.height(IntrinsicSize.Min)) {
+            // Vertical Green Line for Live Sessions
+            if (session.status == SessionStatus.LIVE_NOW) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(6.dp)
+                        .background(SuccessGreen)
                 )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                // Time info
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+            }
+            
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                // Left side - Session info with status indicator
+                Column(
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.clock),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(TextSecondary)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = session.timeRange,
-                        color = TextSecondary,
-                        fontSize = 14.sp
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(6.dp))
-                
-                // Location info
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.pin),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(TextSecondary)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = session.location,
-                        color = TextSecondary,
-                        fontSize = 14.sp
-                    )
-                }
-                
-                // Attendance info with Check In button for live sessions
-                // Check In button is positioned on the RIGHT side, next to attendance deadline
-                if (session.status == SessionStatus.LIVE_NOW && session.attendanceDeadline != null) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Attendance open until ${session.attendanceDeadline}",
-                            color = TextSecondary,
-                            fontSize = 12.sp,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Button(
-                            onClick = onCheckInClick,
-                            colors = ButtonDefaults.buttonColors(containerColor = AccentBlue),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.height(40.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                        ) {
+                    // Status badge
+                    when (session.status) {
+                        SessionStatus.LIVE_NOW -> {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
+                                modifier = Modifier.padding(bottom = 8.dp)
                             ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.check),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
-                                    colorFilter = ColorFilter.tint(Color.White)
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(SuccessGreen)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Check In",
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.SemiBold
+                                    text = "LIVE NOW",
+                                    color = SuccessGreen,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
                                 )
+                            }
+                        }
+                        SessionStatus.STARTS_SOON -> {
+                            Text(
+                                text = "STARTS IN ${session.startsIn}",
+                                color = AccentBlue,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                        }
+                        SessionStatus.UPCOMING -> {
+                            Text(
+                                text = "UPCOMING",
+                                color = TextSecondary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                        }
+                        SessionStatus.PAST -> {
+                            // No status badge for past sessions
+                        }
+                    }
+                    
+                    // Session title
+                    Text(
+                        text = session.title,
+                        color = TextPrimary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Time info
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.clock),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            colorFilter = ColorFilter.tint(TextSecondary)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = session.timeRange,
+                            color = TextSecondary,
+                            fontSize = 14.sp
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(6.dp))
+                    
+                    // Location info
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.pin),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            colorFilter = ColorFilter.tint(TextSecondary)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = session.location,
+                            color = TextSecondary,
+                            fontSize = 14.sp
+                        )
+                    }
+                    
+                    // Attendance info with Check In button for live sessions
+                    // Check In button is positioned on the RIGHT side, next to attendance deadline
+                    if (session.status == SessionStatus.LIVE_NOW && session.attendanceDeadline != null) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Attendance open until ${session.attendanceDeadline}",
+                                color = TextSecondary,
+                                fontSize = 12.sp,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = onCheckInClick,
+                                colors = ButtonDefaults.buttonColors(containerColor = AccentBlue),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.height(40.dp),
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.check),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        colorFilter = ColorFilter.tint(Color.White)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "Check In",
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
-            
-            // Right side - Session image (only for non-live sessions)
-            if (session.status != SessionStatus.LIVE_NOW) {
-                Spacer(modifier = Modifier.width(16.dp))
-                Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    SoftBlue.copy(alpha = 0.3f),
-                                    SoftBlueDark.copy(alpha = 0.3f)
+                
+                // Right side - Session image (only for non-live sessions)
+                if (session.status != SessionStatus.LIVE_NOW) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        SoftBlue.copy(alpha = 0.3f),
+                                        SoftBlueDark.copy(alpha = 0.3f)
+                                    )
                                 )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        session.imageRes?.let { imageRes ->
+                            Image(
+                                painter = painterResource(id = imageRes),
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                contentScale = ContentScale.Fit
                             )
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    session.imageRes?.let { imageRes ->
-                        Image(
-                            painter = painterResource(id = imageRes),
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    } ?: run {
-                        Image(
-                            painter = painterResource(id = R.drawable.graduation),
-                            contentDescription = null,
-                            modifier = Modifier.size(40.dp),
-                            colorFilter = ColorFilter.tint(AccentBlue)
-                        )
+                        } ?: run {
+                            Image(
+                                painter = painterResource(id = R.drawable.graduation),
+                                contentDescription = null,
+                                modifier = Modifier.size(40.dp),
+                                colorFilter = ColorFilter.tint(AccentBlue)
+                            )
+                        }
                     }
                 }
             }
