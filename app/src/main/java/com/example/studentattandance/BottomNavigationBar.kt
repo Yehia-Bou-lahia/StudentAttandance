@@ -36,7 +36,8 @@ import com.example.studentattandance.ui.theme.TextSecondary
 
 @Composable
 fun BottomNavigationBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onScanClick: () -> Unit = {}
 ) {
     var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf(
@@ -137,7 +138,10 @@ fun BottomNavigationBar(
                             colors = listOf(SoftBlue, SoftBlueDark)
                         )
                     )
-                    .clickable { selectedItem = 2 },
+                    .clickable { 
+                        selectedItem = 2
+                        onScanClick()
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
