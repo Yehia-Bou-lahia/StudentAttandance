@@ -140,7 +140,8 @@ fun StudentDashboardScreen(
     upNextClasses: List<UpNextClass> = sampleUpNextClasses(),
     onSeeAllClick: () -> Unit = { /* TODO: Navigate to full schedule */ },
     onClassClick: (UpNextClass) -> Unit = { /* TODO: Navigate to class details */ },
-    onScanClick: () -> Unit = { /* TODO: Navigate to QR scanner */ }
+    onScanClick: () -> Unit = { /* TODO: Navigate to QR scanner */ },
+    onSessionsClick: () -> Unit = { /* TODO: Navigate to sessions */ }
 ) {
     // Calculate attendance percentage if not provided
     val calculatedPercentage = if (attendancePercentage == -1 && totalClasses > 0) {
@@ -157,7 +158,12 @@ fun StudentDashboardScreen(
     }
     
     Scaffold(
-        bottomBar = { BottomNavigationBar(onScanClick = onScanClick) },
+        bottomBar = { 
+            BottomNavigationBar(
+                onScanClick = onScanClick,
+                onSessionsClick = onSessionsClick
+            ) 
+        },
         containerColor = DeepNavy
     ) { paddingValues ->
         Surface(

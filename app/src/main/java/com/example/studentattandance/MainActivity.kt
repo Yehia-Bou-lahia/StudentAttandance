@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainApp() {
+    var currentScreen by remember { mutableStateOf(AppScreen.DASHBOARD) }
     var showScanner by remember { mutableStateOf(false) }
     var scannedQRData by remember { mutableStateOf<String?>(null) }
     
@@ -45,13 +46,40 @@ fun MainApp() {
             }
         )
     } else {
-        // Show Dashboard with scan button connected
-        StudentDashboardScreen(
-            userName = "yehia",
-            attendanceMissedCount = 0, // Will automatically show SUCCESS state
-            onScanClick = {
-                showScanner = true
+        when (currentScreen) {
+            AppScreen.DASHBOARD -> {
+                StudentDashboardScreen(
+                    userName = "yehia",
+                    attendanceMissedCount = 0,
+                    onScanClick = {
+                        showScanner = true
+                    },
+                    onSessionsClick = {
+                        currentScreen = AppScreen.SESSIONS
+                    }
+                )
             }
-        )
+            AppScreen.SESSIONS -> {
+                SessionsScreen(
+                    userAvatarUrl = null, // TODO: Add user avatar URL
+                    onNotificationClick = {
+                        // TODO: Handle notification click
+                    },
+                    onSessionClick = { session ->
+                        // TODO: Navigate to session details
+                        println("Session clicked: ${session.title}")
+                    },
+                    onCheckInClick = { session ->
+                        // Open QR scanner for check-in
+                        showScanner = true
+                    }
+                )
+            }
+        }
     }
+}
+
+enum class AppScreen {
+    DASHBOARD,
+    SESSIONS
 }
