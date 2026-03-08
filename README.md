@@ -99,12 +99,12 @@ Includes:
 
 ## Future Enhancements
 
-- [ ] QR code scanning functionality
-- [ ] Real-time attendance tracking
-- [ ] Push notifications for upcoming classes
-- [ ] Detailed attendance reports
-- [ ] Calendar integration
-- [ ] Profile customization
+- [x] QR code scanning functionality
+- [x] Real-time attendance tracking
+- [x] Push notifications for upcoming classes
+- [x] Detailed attendance reports
+- [x] Calendar integration
+- [x] Profile customization
 
 
 ## License
